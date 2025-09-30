@@ -13,6 +13,9 @@
         // var test = [15, 15, 15, 15];
         // add1(test, 16);
         // console.log(numberToString(test, 16));
+
+        // console.log(numberToString(multBy([3, 5, 5, 5], 6, 4), 16));
+        // console.log(numberToString(multBy([3, 5, 5, 5], 6, 5), 16));
     }
 
     // Main code to kick off the function to listAll d-digit numbers that
@@ -25,8 +28,9 @@
         var base = parseInt(baseInput.value);
         var numDigits = parseInt(numDigitsInput.value);
         var multiple = parseInt(multipleInput.value);
+
+        var button = id('compute');
         listAll(base, numDigits, multiple);
-        console.log('Done');
     }
 
     // Find all four digit numbers with a radix of base where the 
@@ -42,14 +46,29 @@
         }
         numberList.push(1);
         
+        let progressCounter = 0; // To display progress.
         // Check all d-digit numbers in the current base.
         while (numberList.length <= numDigits) {
-            var numberBy4 = multBy4(numberList, base);
-            if (check(numberList, numberBy4)) {
-                console.log(numberToString(numberList, base));
+            var product = multBy(numberList, base, multiple);
+
+            // If the resulting number has more digits than the original, it
+            // and no later number can not be a valid result.
+            if (product.length > numDigits) {
+                results.textContent += `Stopping the search at ${numberToString(numberList, base)}\n`
+                results.textContent += 'Done.\n\n';
+                return;        
+            }
+            if (check(numberList, product)) {
+                console.log(`*** Found: ${numberToString(numberList, base)}`);
                 results.textContent += numberToString(numberList, base) + '\n';
             }
+
             add1(numberList, base);
+
+            progressCounter++;
+            if (progressCounter%1000000 == 0) {
+                console.log(`Trying: ${numberToString(numberList, base)}`);
+            }
         }
         results.textContent += 'Done.\n\n';
     }
@@ -95,6 +114,23 @@
         if (carry > 0) {
             digitList.push(carry);
         }
+    }
+
+    // Multiplies the digitList, in base, by the multiplier.
+    function multBy(digitList, base, multiplier) {
+        let result = [];
+        let carry = 0;
+        for (var i=0; i<digitList.length; i++) {
+            var temp = digitList[i]*multiplier + carry;
+            result[i] = Math.floor(temp % base);
+            carry = Math.floor(temp / base);
+        }
+        
+        if (carry > 0) {
+            result.push(carry);
+        }
+
+        return result;
     }
 
     // Multiplies the digitList, representing a multidigit number in base, by 4.
