@@ -1,5 +1,9 @@
 #results {
     background-color: lightgray;
-    /* width: 90%;
-    height: 10em; */
+    /* width: 40%; */
+}
+
+#progress {
+    background-color: lightyellow;
+    /* width: 40%; */
 }

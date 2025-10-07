@@ -3,6 +3,8 @@
 
     window.addEventListener('load', init);
 
+    var worker = new Worker('worker_helper.js');
+
     function init() {
         var compute = id('compute');
         compute.addEventListener('click', doComputation);
@@ -29,143 +31,44 @@
         var numDigits = parseInt(numDigitsInput.value);
         var multiple = parseInt(multipleInput.value);
 
-        var button = id('compute');
-        listAll(base, numDigits, multiple);
+        // var button = id('compute');
+        //listAll(base, numDigits, multiple);
+        worker.postMessage(JSON.stringify([base, numDigits, multiple]));
     }
 
-    // Find all four digit numbers with a radix of base where the 
-    // reversed version is 4*the number.
-    function listAll(base, numDigits, multiple) {
-        var results = id('results');
-        results.textContent += `Computing results for base ${base}, ${numDigits} digits, with a multiple of ${multiple}.\n`;
-        
-        // Create a number, starting with the smallest d-digit number.
-        var numberList = [];
-        for (let i=0; i<numDigits-1; i++) {
-            numberList.push(0);
+    worker.onmessage = function(message) {
+        // Put 'START:[base, numDigits, multiple]' on results.
+        // Put 'FOUND:n' messages on results.
+        // Put 'UPDATE:n' messages on progress.
+        // Put 'DONE:' message on progress.
+        var [status, info] = message.data.split(':');
+        switch (status) {
+            case 'START':
+                var results = id('results');
+                var [base, numDigits, multiple] = JSON.parse(info);
+                results.textContent += `Searching ${numDigits} digit numbers in base ${base}, with a multiple of ${multiple}.\n`;
+
+                // Clear the progress window.
+                var progress = id('progress');
+                progress.textContent = '';
+                break;
+            case 'FOUND':
+                var results = id('results');
+                results.textContent += `Found: ${info}\n`;
+                break;
+            case 'UPDATE':
+                var progress = id('progress');
+                progress.textContent = `Working on ${info}\n`;
+                break;
+            case 'DONE':
+                var progress = id('progress');
+                progress.textContent = `Done.  Stopped at ${info}.`;
+                break;
         }
-        numberList.push(1);
-        
-        let progressCounter = 0; // To display progress.
-        // Check all d-digit numbers in the current base.
-        while (numberList.length <= numDigits) {
-            var product = multBy(numberList, base, multiple);
 
-            // If the resulting number has more digits than the original, it
-            // and no later number can not be a valid result.
-            if (product.length > numDigits) {
-                results.textContent += `Stopping the search at ${numberToString(numberList, base)}\n`
-                results.textContent += 'Done.\n\n';
-                return;        
-            }
-            if (check(numberList, product)) {
-                console.log(`*** Found: ${numberToString(numberList, base)}`);
-                results.textContent += numberToString(numberList, base) + '\n';
-            }
-
-            add1(numberList, base);
-
-            progressCounter++;
-            if (progressCounter%1000000 == 0) {
-                console.log(`Trying: ${numberToString(numberList, base)}`);
-            }
-        }
-        results.textContent += 'Done.\n\n';
+        // alert(`Response: ${message.data}`)
     }
-
-    // This function takes a number and the number*4 and checks to see if they
-    // are reversed.
-    function check(numberList, numberBy4) {
-        if (numberList.length != numberBy4.length) {
-            return false;
-        } else  {
-            for (let i=0; i<numberList.length; i++) {
-                if (numberList[i] != numberBy4[numberBy4.length-i-1]) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    // Compute the reversed version of the number in the given base.
-    function reverse(number, base) {
-        var reversed = 0;
-        while (number > 0) {
-            reversed = reversed*10 + number%10;
-            number = Math.floor(number/10);
-
-            // console.log(`${reversed}:${number}`)
-        }
-
-        return reversed;
-    }
-
-    // Modifies the current digitList!
-    function add1(digitList, base) {
-        var carry = 1; // Cheaty way to get it done.
-        for (let i=0; i<digitList.length; i++) {
-            let temp = digitList[i] + carry;
-            digitList[i] = Math.floor(temp % base);
-            carry = Math.floor(temp/base);
-        }
-
-        if (carry > 0) {
-            digitList.push(carry);
-        }
-    }
-
-    // Multiplies the digitList, in base, by the multiplier.
-    function multBy(digitList, base, multiplier) {
-        let result = [];
-        let carry = 0;
-        for (var i=0; i<digitList.length; i++) {
-            var temp = digitList[i]*multiplier + carry;
-            result[i] = Math.floor(temp % base);
-            carry = Math.floor(temp / base);
-        }
-        
-        if (carry > 0) {
-            result.push(carry);
-        }
-
-        return result;
-    }
-
-    // Multiplies the digitList, representing a multidigit number in base, by 4.
-    function multBy4(digitList, base) {
-        let result = [];
-        let carry = 0;
-        for (var i=0; i<digitList.length; i++) {
-            var temp = digitList[i]*4 + carry;
-            result[i] = Math.floor(temp % base);
-            carry = Math.floor(temp / base);
-        }
-
-        if (carry > 0) {
-            result.push(carry);
-        }
-
-        return result;
-    }
-
-    // Displays a number in the base.  If 36 or less, prints out with individual
-    // digits.  Otherwise prints multidigit "digits" with spaces between.
-    function numberToString(digitList, base) {
-        let stringResult = "";
-        let digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        for (let i=digitList.length-1; i>=0; i--) {
-            if (base <= 36) {
-                stringResult += digits[digitList[i]];
-            } else {
-                stringResult += digitList[i] + ' ';
-            }
-        }
-
-        return stringResult;
-    }
-
+    
     /////////////////////////////////////////////////////////////////////
     // Helper functions
     /**
