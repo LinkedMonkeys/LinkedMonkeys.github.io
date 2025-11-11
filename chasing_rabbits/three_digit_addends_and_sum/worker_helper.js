@@ -1,0 +1,198 @@
+(function() {
+    'use strict';
+
+    onmessage = function(message) {
+        var base = JSON.parse(message.data);
+
+        listAll(base);
+        // console.log(`Got ${base}.`);
+        // self.postMessage(`Got ${base}.`);
+    }
+
+    
+    // Find all 3digit + 3digit = 3digit numbers using all the digits 1-9.
+    // But in any base.
+    function listAll(base) {
+        var addend1Length = Math.floor((base-1)/3);
+        var addend2Length = Math.floor((base-1)/3) + ((base-1)%3==2 ? 1 : 0);
+        var sumLength = Math.floor((base-1)/3) + ((base-1)%3!=0 ? 1 : 0);
+    
+
+        self.postMessage(`START:[${base}, ${addend1Length}, ${addend2Length}, ${sumLength}]`);
+
+        var numberList = [];
+        // Load up the digits [1, base).
+        for (let i=base-1; i>=1; i--) {
+            numberList.push(i);
+        }
+
+        checkValue(numberList, base, addend1Length, addend2Length, sumLength);
+
+
+        // // results.textContent += `Computing results for base ${base}, ${numDigits} digits, with a multiple of ${multiple}.\n`;
+        
+        // // Create a number, starting with the smallest d-digit number.
+        // var numberList = [];
+        // for (let i=0; i<numDigits-1; i++) {
+        //     numberList.push(0);
+        // }
+        // numberList.push(1);
+        
+        // let progressCounter = 0; // To display progress.
+        // // Check all d-digit numbers in the current base.
+        // while (numberList.length <= numDigits) {
+        //     var product = multBy(numberList, base, multiple);
+
+        //     // If the resulting number has more digits than the original, it
+        //     // and no later number can not be a valid result.
+        //     if (product.length > numDigits) {
+        //         self.postMessage(`DONE:${numberToString(numberList, base)}`);
+        //         // results.textContent += `Stopping the search at ${numberToString(numberList, base)}\n`
+        //         // results.textContent += 'Done.\n\n';
+        //         return;        
+        //     }
+        //     if (check(numberList, product)) {
+        //         self.postMessage(`FOUND:${numberToString(numberList, base)}`)
+        //         // console.log(`*** Found: ${numberToString(numberList, base)}`);
+        //         // results.textContent += numberToString(numberList, base) + '\n';
+        //     }
+
+        //     add1(numberList, base);
+
+        //     progressCounter++;
+        //     if (progressCounter == 1000000) {
+        //         self.postMessage(`UPDATE:${numberToString(numberList, base)}`)
+        //         // console.log(`Trying: ${numberToString(numberList, base)}`);
+        //         progressCounter = 0;
+        //     }
+        // }
+        self.postMessage('DONE:');
+        // results.textContent += 'Done.\n\n';
+    }
+
+    // Check to see if ABC + DEF = GHI (base 10 version).
+    function checkValue(numberList, base, addend1Length, addend2Length, sumLength) {
+        var addend1 = numberList.slice(0, addend1Length);
+        var addend2 = numberList.slice(addend1Length, addend1Length+addend2Length);
+        var sum = numberList.slice(numberList.length-sumLength);
+    
+        // console.log(`Checking ${numberToString(addend1, base)} + ${numberToString(addend2, base)} = ${numberToString(sum, base)} in ${base}`);
+
+        actualSum = sumNumbers(addend1, addend2, base);
+    }
+
+    function allDigits(numList, base) {
+        
+    }
+
+    function sumNumbers(a, b, base) {
+        
+        return sum;
+    }
+
+    // Compute the reversed version of the number in the given base.
+    function reverse(number, base) {
+        var reversed = 0;
+        while (number > 0) {
+            reversed = reversed*10 + number%10;
+            number = Math.floor(number/10);
+
+            // console.log(`${reversed}:${number}`)
+        }
+
+        return reversed;
+    }
+
+    // Modifies the current digitList!
+    function add1(digitList, base) {
+        var carry = 1; // Cheaty way to get it done.
+        for (let i=0; i<digitList.length; i++) {
+            let temp = digitList[i] + carry;
+            digitList[i] = Math.floor(temp % base);
+            carry = Math.floor(temp/base);
+        }
+
+        if (carry > 0) {
+            digitList.push(carry);
+        }
+    }
+
+    // Multiplies the digitList, in base, by the multiplier.
+    function multBy(digitList, base, multiplier) {
+        let result = [];
+        let carry = 0;
+        for (var i=0; i<digitList.length; i++) {
+            var temp = digitList[i]*multiplier + carry;
+            result[i] = Math.floor(temp % base);
+            carry = Math.floor(temp / base);
+        }
+        
+        if (carry > 0) {
+            result.push(carry);
+        }
+
+        return result;
+    }
+
+    // Multiplies the digitList, representing a multidigit number in base, by 4.
+    function multBy4(digitList, base) {
+        let result = [];
+        let carry = 0;
+        for (var i=0; i<digitList.length; i++) {
+            var temp = digitList[i]*4 + carry;
+            result[i] = Math.floor(temp % base);
+            carry = Math.floor(temp / base);
+        }
+
+        if (carry > 0) {
+            result.push(carry);
+        }
+
+        return result;
+    }
+
+    // Displays a number in the base.  If 36 or less, prints out with individual
+    // digits.  Otherwise prints multidigit "digits" with spaces between.
+    function numberToString(digitList, base) {
+        let stringResult = "";
+        let digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        for (let i=digitList.length-1; i>=0; i--) {
+            if (base <= 36) {
+                stringResult += digits[digitList[i]];
+            } else {
+                stringResult += digitList[i] + ' ';
+            }
+        }
+
+        return stringResult;
+    }
+
+    /////////////////////////////////////////////////////////////////////
+    // Helper functions
+    /**
+    * Helper function to return the response's result text if successful, otherwise
+    * returns the rejected Promise result with an error status and corresponding text
+    * @param {object} res - response to check for success/error
+
+    * @return {object} - valid response if response was successful, otherwise rejected
+    *                    Promise result
+    */
+    async function statusCheck(res) {
+        if (!res.ok) {
+            throw new Error(await res.text());
+        }
+        return res;
+    }
+
+    function id(id) {
+        return document.getElementById(id);
+    }
+
+    function qs(selector) {
+        return document.querySelector(selector);
+    }
+
+    function qsa(selector) {
+        return document.querySelectorAll(selector);
+    }
+})();
