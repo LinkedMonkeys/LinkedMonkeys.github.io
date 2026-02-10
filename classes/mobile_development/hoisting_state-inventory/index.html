@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Inventory app -- demo of state hoisting</h1>
+
+    <p>The goal is to build an app for counting inventory.</p>
+    <img src="sample-ui.png" alt="The UI of the inventory app">
+    <p>If the entire activity's UI is in a single function, there is no need to hoist state.  Writing a function for the Row of buttons makes it easier to write, removes repeated code, and would be expandable to include any number of button Rows.</p>
+
+    <div id="options">
+    <div class="example">
+    <h2>Initial version (total does not update)</h2>
+    <pre>
+@Composable
+fun Inventory(modifier: Modifier = Modifier) {
+    var totalItems by remember { mutableStateOf(0) }
+
+
+
+
+
+
+
+
+
+
+    
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ButtonRow("A:")
+        ButtonRow("B:")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = "Total items: $totalItems",
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ButtonRow(
+    modifier: Modifier = Modifier,
+    heading: String,
+    ) {
+    var count by remember { mutableStateOf(0) }
+        
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = heading
+        )
+        Button(
+            modifier = Modifier
+                .padding(10.dp)
+                .width(100.dp),
+            onClick = { count++ },
+        ) {
+            Text("+1")
+        }
+        Button(
+            modifier = Modifier
+                .padding(10.dp)
+                .width(100.dp),
+            onClick = { count += 10 },
+        ) {
+            Text("+10")
+        }
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = "$count"
+        )
+    }
+}
+    </pre>
+</div>
+
+<div class="example">
+<h2>Completed version (after hoisting state)</h2>
+<pre>
+@Composable
+fun Inventory(modifier: Modifier = Modifier) {
+    var totalItems by remember { mutableStateOf(0) }
+<strong>    var countA by remember { mutableStateOf(0) }
+    var countB by remember { mutableStateOf(0) }
+    val updateA: (Int) -> Unit = {
+        countA += it
+        totalItems += it
+    }
+    val updateB: (Int) -> Unit = {
+        countB += it
+        totalItems += it
+    }</strong>
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+<strong>        ButtonRow(heading = "A:", count = countA, update = updateA)
+        ButtonRow(heading = "B:", count = countB, update = updateB)</strong>
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = "Total items: $totalItems",
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ButtonRow(
+    modifier: Modifier = Modifier,
+    heading: String,
+<strong>    count: Int,
+    update: (Int) -> Unit,</strong>
+    ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = heading
+        )
+        Button(
+            modifier = Modifier
+                .padding(10.dp)
+                .width(100.dp),
+<strong>            onClick = { update(1) },</strong>
+        ) {
+            Text("+1")
+        }
+        Button(
+            modifier = Modifier
+                .padding(10.dp)
+                .width(100.dp),
+<strong>            onClick = { update(10) },</strong>
+        ) {
+            Text("+10")
+        }
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = "$count"
+        )
+    }
+}
+</pre>
+</div>
+
+</div>
+
+</body>
+</html>

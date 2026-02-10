@@ -1,0 +1,8 @@
+#options {
+    display: flex;
+}
+
+.example {
+    margin: 5px;
+    background-color: #eeeeee;
+}
