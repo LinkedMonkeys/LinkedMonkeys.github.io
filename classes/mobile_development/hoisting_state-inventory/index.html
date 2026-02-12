@@ -13,7 +13,7 @@
     <img src="sample-ui.png" alt="The UI of the inventory app">
     <p>If the entire activity's UI is in a single function, there is no need to hoist state.  Writing a function for the Row of buttons makes it easier to write, removes repeated code, and would be expandable to include any number of button Rows.</p>
 
-    <div id="options">
+    <div class="options">
     <div class="example">
     <h2>Initial version (total does not update)</h2>
     <pre>
@@ -36,8 +36,8 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ButtonRow("A:")
-        ButtonRow("B:")
+<span class="remove">        ButtonRow("A:")
+        ButtonRow("B:")</span>
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -57,7 +57,7 @@ private fun ButtonRow(
     modifier: Modifier = Modifier,
     heading: String,
     ) {
-<strong>    var count by remember { mutableStateOf(0) }</strong>
+<span class="remove">    var count by remember { mutableStateOf(0) }</span>
         
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -97,7 +97,7 @@ private fun ButtonRow(
 @Composable
 fun InventoryScreen(modifier: Modifier = Modifier) {
     var totalItems by remember { mutableStateOf(0) }
-<strong>    var countA by remember { mutableStateOf(0) }
+<span class="add">    var countA by remember { mutableStateOf(0) }
     var countB by remember { mutableStateOf(0) }
     val updateA: (Int) -&gt; Unit = {
         countA += it
@@ -106,15 +106,15 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
     val updateB: (Int) -&gt; Unit = {
         countB += it
         totalItems += it
-    }</strong>
+    }</span>
 
     Column(
         modifier = modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-<strong>        ButtonRow(heading = "A:", count = countA, update = updateA)
-        ButtonRow(heading = "B:", count = countB, update = updateB)</strong>
+<span class="add">        ButtonRow(heading = "A:", count = countA, update = updateA)
+        ButtonRow(heading = "B:", count = countB, update = updateB)</span>
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,8 +133,8 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
 private fun ButtonRow(
     modifier: Modifier = Modifier,
     heading: String,
-<strong>    count: Int,
-    update: (Int) -&gt; Unit,</strong>
+<span class="add">    count: Int,
+    update: (Int) -&gt; Unit,</span>
     ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -147,7 +147,7 @@ private fun ButtonRow(
             modifier = Modifier
                 .padding(10.dp)
                 .width(100.dp),
-<strong>            onClick = { update(1) },</strong>
+<span class="add">            onClick = { update(1) },</span>
         ) {
             Text("+1")
         }
@@ -155,7 +155,7 @@ private fun ButtonRow(
             modifier = Modifier
                 .padding(10.dp)
                 .width(100.dp),
-<strong>            onClick = { update(10) },</strong>
+<span class="add">            onClick = { update(10) },</span>
         ) {
             Text("+10")
         }
@@ -167,36 +167,128 @@ private fun ButtonRow(
 }
 </pre>
 </div>
-    <div class="extra-example">
-    <h2>Array version</h2>
-    <pre>
+</div>
+
+
+<hr>
+<h2>Modifying to allow an array of ButtonRows</h2>
+
+<p>Once we have the state hoisted, it is not to hard to generalize to allow for an arbitrary number of ButtonRows.  The strangest part is how the counter List must be declared.</p>
+    <div class="options">
+<div class="example">
+<h2>Completed version (after hoisting state)</h2>
+<pre>
 @Composable
 fun InventoryScreen(modifier: Modifier = Modifier) {
     var totalItems by remember { mutableStateOf(0) }
-    val numRows = 10
-    // Not sure why we do not use the "by" keyword.
-//    var counts by remember { mutableStateListOf&lt;Int&gt;() }
-<strong>    var counts = remember { mutableStateListOf&lt;Int&gt;() }
-
-    // Create the counters in the list.
-    for (i in 0 until numRows) {
-        counts.add(0)
+<span class="remove">    var countA by remember { mutableStateOf(0) }
+    var countB by remember { mutableStateOf(0) }
+    val updateA: (Int) -&gt; Unit = {
+        countA += it
+        totalItems += it
     }
-</strong>
+    val updateB: (Int) -&gt; Unit = {
+        countB += it
+        totalItems += it
+    }</span>
+
     Column(
         modifier = modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-<strong>        for (i in 0 until numRows) {
+<span class="remove">        ButtonRow(heading = "A:", count = countA, update = updateA)
+        ButtonRow(heading = "B:", count = countB, update = updateB)</span>
+        
+        
+        
+        
+        
+        
+        
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = "Total items: $totalItems",
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ButtonRow(
+    modifier: Modifier = Modifier,
+    heading: String,
+    count: Int,
+    update: (Int) -&gt; Unit,
+    ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = heading
+        )
+        Button(
+            modifier = Modifier
+                .padding(10.dp)
+                .width(100.dp),
+            onClick = { update(1) },
+        ) {
+            Text("+1")
+        }
+        Button(
+            modifier = Modifier
+                .padding(10.dp)
+                .width(100.dp),
+            onClick = { update(10) },
+        ) {
+            Text("+10")
+        }
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = "$count"
+        )
+    }
+}
+</pre>
+</div>
+    <div class="example">
+    <h2>Array version</h2>
+    <pre>
+@Composable
+fun InventoryScreen(modifier: Modifier = Modifier) {
+    var totalItems by remember { mutableStateOf(0) }
+<span class="add">    val numRows = 10
+    // Not sure why we do not use the "by" keyword.
+//    var counts by remember { mutableStateListOf&lt;Int&gt;() }
+    var counts = remember { mutableStateListOf&lt;Int&gt;() }
+
+    // Create the counters in the list.
+    for (i in 0 until numRows) {
+        counts.add(0)
+    }</span>
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+<span class="add">        for (i in 0 until numRows) {
             ButtonRow(
                 heading = "${'A'+i}",
                 count = counts[i],
                 update = {
                     counts[i] += it
                     totalItems += it
-                })</strong>
-        }
+                }
+            )
+        }</span>
         Row(
             modifier = Modifier
                 .fillMaxWidth()
