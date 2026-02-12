@@ -23,14 +23,6 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
 
 
 
-
-
-
-
-
-
-
-    
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -38,6 +30,20 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
     ) {
 <span class="remove">        ButtonRow("A:")
         ButtonRow("B:")</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,7 +76,7 @@ private fun ButtonRow(
             modifier = Modifier
                 .padding(10.dp)
                 .width(100.dp),
-            onClick = { count++ },
+<span class="remove">            onClick = { count++ },</span>
         ) {
             Text("+1")
         }
@@ -78,7 +84,7 @@ private fun ButtonRow(
             modifier = Modifier
                 .padding(10.dp)
                 .width(100.dp),
-            onClick = { count += 10 },
+<span class="remove">            onClick = { count += 10 },</span>
         ) {
             Text("+10")
         }
@@ -98,23 +104,29 @@ private fun ButtonRow(
 fun InventoryScreen(modifier: Modifier = Modifier) {
     var totalItems by remember { mutableStateOf(0) }
 <span class="add">    var countA by remember { mutableStateOf(0) }
-    var countB by remember { mutableStateOf(0) }
-    val updateA: (Int) -&gt; Unit = {
-        countA += it
-        totalItems += it
-    }
-    val updateB: (Int) -&gt; Unit = {
-        countB += it
-        totalItems += it
-    }</span>
-
+    var countB by remember { mutableStateOf(0) }</span>
+    
     Column(
         modifier = modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-<span class="add">        ButtonRow(heading = "A:", count = countA, update = updateA)
-        ButtonRow(heading = "B:", count = countB, update = updateB)</span>
+<span class="add">        ButtonRow(
+            heading = "A:",
+            count = countA,
+            update = {
+                countA += it
+                totalItems += it
+            }
+        )
+        ButtonRow(
+            heading = "B:",
+            count = countB,
+            update = {
+                countB += it
+                totalItems += it
+            }
+        )</span>
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -135,7 +147,7 @@ private fun ButtonRow(
     heading: String,
 <span class="add">    count: Int,
     update: (Int) -&gt; Unit,</span>
-    ) {
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -164,8 +176,7 @@ private fun ButtonRow(
             text = "$count"
         )
     }
-}
-</pre>
+}</pre>
 </div>
 </div>
 
@@ -182,30 +193,36 @@ private fun ButtonRow(
 fun InventoryScreen(modifier: Modifier = Modifier) {
     var totalItems by remember { mutableStateOf(0) }
 <span class="remove">    var countA by remember { mutableStateOf(0) }
-    var countB by remember { mutableStateOf(0) }
-    val updateA: (Int) -&gt; Unit = {
-        countA += it
-        totalItems += it
-    }
-    val updateB: (Int) -&gt; Unit = {
-        countB += it
-        totalItems += it
-    }</span>
+    var countB by remember { mutableStateOf(0) }</span>
+    
+
+
+
+
+
+
 
     Column(
         modifier = modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-<span class="remove">        ButtonRow(heading = "A:", count = countA, update = updateA)
-        ButtonRow(heading = "B:", count = countB, update = updateB)</span>
-        
-        
-        
-        
-        
-        
-        
+<span class="remove">        ButtonRow(
+            heading = "A:",
+            count = countA,
+            update = {
+                countA += it
+                totalItems += it
+            }
+        )
+        ButtonRow(
+            heading = "B:",
+            count = countB,
+            update = {
+                countB += it
+                totalItems += it
+            }
+        )</span>
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -226,7 +243,7 @@ private fun ButtonRow(
     heading: String,
     count: Int,
     update: (Int) -&gt; Unit,
-    ) {
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -289,6 +306,12 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
                 }
             )
         }</span>
+
+
+
+
+
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
