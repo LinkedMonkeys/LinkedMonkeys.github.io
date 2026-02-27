@@ -1,0 +1,15 @@
+h1, iframe, p {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center;
+}
+
+h1 {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 3em;
+    color: white;
+}
+
+body {
+    background-color: #532987;
+}
